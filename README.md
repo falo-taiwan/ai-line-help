@@ -36,17 +36,17 @@
 ## 二、 技術方案對比分析矩阵 (Technical Evaluation Matrix)
 
 🔒 **[此區塊內容已受密碼保護 (進階實作做法)]**
-*本部分包含不同系統架構（Android 通知監聽、Accessibility API、Beeper Matrix 橋接、Simulator/ADB 等）的詳細對比、可行性分析及安全封鎖風險評估。如需查看完整報告，請造訪網頁版並輸入密碼 `falo` 解鎖。*
+*本部分包含不同系統架構（Android 通知監聽、Accessibility API、Beeper Matrix 橋接、Simulator/ADB 等）的詳細對比、可行性分析及安全封鎖風險評估。如需查看完整報告，請造訪網頁版並輸入解鎖密碼。*
 
 ## 三、 AI Note Commander 系統架構設計
 
 🔒 **[此區塊內容已受密碼保護 (進階實作做法)]**
-*本部分包含 AI Note Commander 的六層系統架構圖與模組邊界責任清單。如需查看完整報告，請造訪網頁版並輸入密碼 `falo` 解鎖。*
+*本部分包含 AI Note Commander 的六層系統架構圖與模組邊界責任清單。如需查看完整報告，請造訪網頁版並輸入解鎖密碼。*
 
 ## 四、 結果導向導入與產品變現路線圖 (Roadmap)
 
 🔒 **[此區塊內容已受密碼保護 (進階實作做法)]**
-*本部分包含系統敏捷導入的四個階段（從手動 MVP 驗證到企業級 SaaS 產品化及業務 AI 外掛硬體盒）的詳細時程規劃與變現路線圖。如需查看完整報告，請造訪網頁版並輸入密碼 `falo` 解鎖。*
+*本部分包含系統敏捷導入的四個階段（從手動 MVP 驗證到企業級 SaaS 產品化及業務 AI 外掛硬體盒）的詳細時程規劃與變現路線圖。如需查看完整報告，請造訪網頁版並輸入解鎖密碼。*
 
 ## 五、 本階段 Next Action 建議
 
@@ -74,5 +74,5 @@
 ## 七、 輕量落地利器：GAS Webhook 302 重導向防禦與突破
 
 🔒 **[此區塊內容已受密碼保護 (302/200 突破技巧)]**
-*本部分包含使用 Google Apps Script (GAS) 部署 Webhook 時，如何利用 `HtmlService` 繞過 HTTP 302 導向限制，成功通過 LINE Webhook URL 驗證的特殊程式碼實作與架構價值。如需查看完整報告，請造訪網頁版並輸入密碼 `falo` 解鎖。*
+*本部分包含使用 Google Apps Script (GAS) 部署 Webhook 時，如何利用 `HtmlService` 繞過 HTTP 302 導向限制，成功通過 LINE Webhook URL 驗證的特殊程式碼實作與架構價值。如需查看完整報告，請造訪網頁版並輸入解鎖密碼。*
 
