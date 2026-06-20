@@ -669,6 +669,17 @@
             padding-top: 20px;
             border-top: 1px solid var(--border-color);
         }
+
+        pre {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: monospace;
+            margin: 16px 0;
+        }
+        code { font-family: monospace; color: #f472b6; }
     </style>
 </head>
 <body>
@@ -700,6 +711,7 @@
                     <li class="toc-item"><a href="#roadmap" class="toc-link">四、 敏捷導入路線圖</a></li>
                     <li class="toc-item"><a href="#actions" class="toc-link">五、 階段 Next Actions</a></li>
                     <li class="toc-item"><a href="#foundation" class="toc-link">六、 技術基石解析</a></li>
+                    <li class="toc-item"><a href="#gas-gateway" class="toc-link">七、 GAS Webhook 突破</a></li>
                 </ul>
             </div>
         </aside>
@@ -1009,6 +1021,48 @@
                         </p>
                     </div>
                 </div>
+            </section>
+
+            <!-- Section 7: GAS Webhook Redirection Workaround -->
+            <section id="gas-gateway">
+                <h2>七、 輕量落地利器：GAS Webhook 302 重導向防禦與突破</h2>
+                <p>
+                    在內地與中小企業實際落地的架構中，使用 <strong>Google Apps Script (GAS) Web App</strong> 作為輕量級資料落地閘道器 (Gateway) 是一個極具性價比的解決方案。然而，絕大多數開發者在此路徑都會遇到一個關鍵瓶頸 ── <strong>LINE Webhook URL 驗證失敗</strong>。
+                </p>
+                
+                <h3>1. 核心技術瓶頸：HTTP 302 重導向阻礙</h3>
+                <ul>
+                    <li><strong>現象</strong>：當在 GAS 中使用 <code>ContentService.createTextOutput("OK")</code> 回傳驗證結果時，Google 的伺服器預設會發送 <strong>HTTP 302 Found</strong> 重新導向至 Google 的內容託管伺服器。</li>
+                    <li><strong>阻礙</strong>：LINE 的 Webhook 驗證引擎基於安全考量，<strong>不支援也不會跟隨 HTTP 302 重新導向</strong>，這會直接導致 LINE Developers 控制台報錯「Webhook URL verification failed」，使得整條 Webhook 鏈路無法直接通暢。</li>
+                </ul>
+
+                <h3>2. 獨家突破方案：強制 direct HTTP 200 回傳 (HtmlService 繞過)</h3>
+                <p>FALO 落地版程式碼中使用了一段特殊且優雅的解法 ── <strong>改用 <code>HtmlService</code> 替代 <code>ContentService</code></strong>：</p>
+                <pre><code class="language-javascript">function htmlPostAck_(payload) {
+  var safePayload = JSON.stringify(payload || {ok: true})
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 核心繞過點：使用 HtmlService 回傳 HTML 標記，Google 伺服器會直接以 HTTP 200 OK 響應
+  // 避開了 ContentService 的 302 重導向，從而成功通過 LINE 的 Webhook 驗證。
+  return HtmlService
+    .createHtmlOutput(
+      '&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;/head&gt;' +
+      '&lt;body&gt;OK&lt;script type="application/json" id="falo-result"&gt;' +
+      safePayload +
+      '&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;'
+    )
+    .setTitle('FALO GAS LINE Bot Webhook OK')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}</code></pre>
+
+                <h3>3. 落地架構價值</h3>
+                <ul class="custom-list">
+                    <li><strong>零維護成本</strong>：不需要架設 VPS、ngrok 或任何付費的中介 Proxy 伺服器，100% 依賴 Google 的無伺服器 (Serverless) 基礎設施。</li>
+                    <li><strong>資料安全落地</strong>：LINE Webhook ➜ GAS <code>doPost(e)</code> ➜ 直接將結構化事件寫入 Google Sheets (作為緩衝佇列) ➜ 地端 AI Node 定期拉取 (Pull) 分析。</li>
+                    <li><strong>物理防封號</strong>：GAS 扮演了極好的「被動吸納緩衝層」，不直接從伺服器端模擬人工回覆，符合 Privacy-First 與人機協作 (HITL) 治理。</li>
+                </ul>
             </section>
         </main>
     </div>

@@ -139,3 +139,43 @@
 ---
 *Signature: Falo x Force Cheng 2026/6/20*
 
+---
+
+## 七、 輕量落地利器：GAS Webhook 302 重導向防禦與突破
+
+在內地與中小企業實際落地的架構中，使用 **Google Apps Script (GAS) Web App** 作為輕量級資料落地閘道器 (Gateway) 是一個極具性價比的解決方案。然而，絕大多數開發者在此路徑都會遇到一個關鍵瓶頸 ── **LINE Webhook URL 驗證失敗**。
+
+### 1. 核心技術瓶頸：HTTP 302 重導向阻礙
+* **現象**：當在 GAS 中使用 `ContentService.createTextOutput("OK")` 回傳驗證結果時，Google 的伺服器預設會發送 **HTTP 302 Found** 重新導向至 Google 的內容託管伺服器。
+* **阻礙**：LINE 的 Webhook 驗證引擎基於安全考量，**不支援也不會跟隨 HTTP 302 重新導向**，這會直接導致 LINE Developers 控制台報錯「Webhook URL verification failed」，使得整條 Webhook 鏈路無法直接通暢。
+
+### 2. 獨家突破方案：強制 direct HTTP 200 回傳 (HtmlService 繞過)
+FALO 落地版程式碼中使用了一段特殊且優雅的解法 ── **改用 `HtmlService` 替代 `ContentService`**：
+
+```javascript
+function htmlPostAck_(payload) {
+  var safePayload = JSON.stringify(payload || {ok: true})
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 核心繞過點：使用 HtmlService 回傳 HTML 標記，Google 伺服器會直接以 HTTP 200 OK 響應
+  // 避開了 ContentService 的 302 重導向，從而成功通過 LINE 的 Webhook 驗證。
+  return HtmlService
+    .createHtmlOutput(
+      '<!doctype html><html><head><meta charset="utf-8"></head>' +
+      '<body>OK<script type="application/json" id="falo-result">' +
+      safePayload +
+      '</script></body></html>'
+    )
+    .setTitle('FALO GAS LINE Bot Webhook OK')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+```
+
+### 3. 落地架構價值
+* **零維護成本**：不需要架設 VPS、ngrok 或任何付費的中介 Proxy 伺服器，100% 依賴 Google 的無伺服器 (Serverless) 基礎設施。
+* **資料安全落地**：LINE Webhook ➜ GAS `doPost(e)` ➜ 直接將結構化事件寫入 Google Sheets (作為緩衝佇列) ➜ 地端 AI Node 定期拉取 (Pull) 分析。
+* **物理防封號**：GAS 扮演了極好的「被動吸納緩衝層」，不直接從伺服器端模擬人工回覆，符合 Privacy-First 與人機協作 (HITL) 治理。
+
+
