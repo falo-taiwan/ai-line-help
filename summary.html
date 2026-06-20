@@ -681,6 +681,100 @@
         }
         code { font-family: monospace; color: #f472b6; }
     </style>
+
+    <style>
+        .lock-badge {
+            background-color: var(--accent-rose);
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            vertical-align: middle;
+            font-weight: 600;
+            letter-spacing: normal;
+        }
+        .unlock-badge {
+            background-color: var(--accent-emerald) !important;
+        }
+        .decrypt-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px dashed var(--accent-rose);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-speed);
+        }
+        .decrypt-card.unlocked-border {
+            border: 1px solid var(--accent-emerald) !important;
+        }
+        .decrypt-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .decrypt-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .decrypt-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .decrypt-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .decrypt-input {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 16px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .decrypt-input:focus {
+            border-color: var(--accent-rose);
+        }
+        .decrypt-btn {
+            background: linear-gradient(135deg, var(--accent-rose) 0%, #b3261e 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .decrypt-btn:hover {
+            opacity: 0.9;
+        }
+        .decrypt-error {
+            color: var(--accent-rose);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+    </style>
+
 </head>
 <body>
     
@@ -811,183 +905,54 @@
 
             <!-- Section 2: Technical Evaluation Matrix -->
             <section id="matrix">
-                <h2>二、 技術方案評估矩陣 (Technical Evaluation Matrix)</h2>
-                <p>要在封閉的 LINE 生態中安全、穩定地擷取數據，系統架構必須進行權衡：</p>
-
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>技術方案</th>
-                                <th>可行性</th>
-                                <th>穩定性</th>
-                                <th>封鎖風險</th>
-                                <th>開發維護</th>
-                                <th>適用場景與定位</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>手動聊天紀錄匯出 (.txt)</strong></td>
-                                <td><span class="badge badge-success">極高</span></td>
-                                <td><span class="badge badge-success">極高</span></td>
-                                <td><span class="badge badge-success">零風險</span></td>
-                                <td><span class="badge badge-success">極低</span></td>
-                                <td>🟢 <strong>MVP 驗證首選</strong>。安全合規，但非即時。配合開源 linelog2py 可以完美轉化為程式化數據。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Android 通知監聽 (Listener)</strong></td>
-                                <td><span class="badge badge-success">極高</span></td>
-                                <td><span class="badge badge-success">高</span></td>
-                                <td><span class="badge badge-success">極低</span></td>
-                                <td><span class="badge badge-warning">中等</span></td>
-                                <td>✅ <strong>即時擷取主力方案</strong>。僅抓取 Android 系統通知欄，不觸碰/不登入 LINE。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Matrix LINE 橋接 (Beeper)</strong></td>
-                                <td><span class="badge badge-warning">中高</span></td>
-                                <td><span class="badge badge-warning">中等</span></td>
-                                <td><span class="badge badge-warning">中等</span></td>
-                                <td><span class="badge badge-danger">極高</span></td>
-                                <td>⚡ <strong>雙向 Agent 終極方案</strong>。可雙向收發，但需維持 Letter Sealing E2EE 密鑰。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Android 無障礙 (Accessibility)</strong></td>
-                                <td><span class="badge badge-warning">中等</span></td>
-                                <td><span class="badge badge-danger">低</span></td>
-                                <td><span class="badge badge-danger">高</span></td>
-                                <td><span class="badge badge-danger">高</span></td>
-                                <td>🟡 僅作為補抓靜音群組的唯讀備援，代操封號風險極高。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Desktop OCR & RPA</strong></td>
-                                <td><span class="badge badge-warning">中等</span></td>
-                                <td><span class="badge badge-danger">中低</span></td>
-                                <td><span class="badge badge-success">低</span></td>
-                                <td><span class="badge badge-danger">高</span></td>
-                                <td>🟡 佔用實體電腦畫面，UI 改版易失效，無法升級為 SaaS 多租戶。</td>
-                            </tr>
-                            <tr>
-                                <td><strong>模擬器多開 + ADB 腳本</strong></td>
-                                <td><span class="badge badge-danger">低</span></td>
-                                <td><span class="badge badge-danger">低</span></td>
-                                <td><span class="badge badge-danger">極高</span></td>
-                                <td><span class="badge badge-danger">高</span></td>
-                                <td>🔴 僅限開發測試，嚴格禁止做為生產環境主力。</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="alert alert-warning">
-                    <div class="alert-icon">⚠️</div>
-                    <div class="alert-content">
-                        <h4>封鎖風險提醒</h4>
-                        <p>任何主動模擬人工操作、修改 LINE 客戶端 APK 或多開帳號的灰色方案皆容易觸發 LINE 官方安全監控導致封號。<strong>強烈建議在開發測試階段使用次要/測試帳號</strong>，且系統應採取「被動監聽 + 人工覆核」的防封號架構。</p>
+                <h2>二、 技術方案評估矩陣 (Technical Evaluation Matrix) <span class="lock-badge" id="badge-matrix">🔒 已加密保護</span></h2>
+                
+                <div class="decrypt-card" id="card-matrix">
+                    <div class="decrypt-icon">🔒</div>
+                    <div class="decrypt-title">進階做法：技術評估矩陣 已加密</div>
+                    <p class="decrypt-desc">本區塊包含各家 AI 模型底層擷取技術細節對比與封鎖風險分析。<br>請輸入解密密碼以解鎖檢視內容：</p>
+                    <div class="decrypt-form">
+                        <input type="password" class="decrypt-input" id="input-matrix" placeholder="輸入密碼 falo...">
+                        <button class="decrypt-btn" onclick="attemptUnlock('matrix')">解鎖內容</button>
                     </div>
+                    <div class="decrypt-error" id="error-matrix" style="display: none;">密碼錯誤，請重試！</div>
                 </div>
-            </section>
+                <div id="content-matrix" style="display: none;"></div>
+    </section>
 
             <!-- Section 3: Architecture -->
             <section id="architecture">
-                <h2>三、 AI Note Commander 系統架構設計</h2>
-                <p>為了確保高隱私性與平台不可知性，系統提煉出以下六層處理架構：</p>
-
-                <div class="diagram-container">
-                    <div class="diagram-flow">
-                        <div class="diagram-node"><strong>LINE 原始對話 / 專案群組 / 合作夥伴訊息</strong></div>
-                        <div class="diagram-arrow">▼</div>
-                        <div class="diagram-node highlight">
-                            <strong>① 擷取層 (Capture Layer)</strong><br>
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Android 系統通知監聽 App (即時) + 定期手動 txt 備份匯出 (批次)</span>
-                        </div>
-                        <div class="diagram-arrow">▼</div>
-                        <div class="diagram-node">
-                            <strong>② 事件正規化層 (Event Layer)</strong><br>
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">語意拼接 (Semantic Chunking) 合併發言 + 貼圖/無意義問候過濾</span>
-                        </div>
-                        <div class="diagram-arrow">▼</div>
-                        <div class="diagram-node highlight">
-                            <strong>③ AI Note 處理層 (AI Engine)</strong><br>
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">LLM 結構化輸出 (JSON) + 任務/決策點/商機/風險多維提取</span>
-                        </div>
-                        <div class="diagram-arrow">▼</div>
-                        <div class="diagram-node">
-                            <strong>④ 知識沉澱層 (Knowledge Layer)</strong><br>
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">寫入 RAG 向量資料庫 + 對接 Personal CRM (Folk/Clay)</span>
-                        </div>
-                        <div class="diagram-arrow">▼</div>
-                        <div class="diagram-node highlight">
-                            <strong>⑤ 控制指揮層 (Commander Console)</strong><br>
-                            <span style="font-size: 0.85rem; color: var(--text-secondary);">每日簡報推送 + 人機協作審批門戶 (一鍵點擊執行任務/Approve 回覆草稿)</span>
-                        </div>
+                <h2>三、 AI Note Commander 系統架構設計 <span class="lock-badge" id="badge-architecture">🔒 已加密保護</span></h2>
+                
+                <div class="decrypt-card" id="card-architecture">
+                    <div class="decrypt-icon">🔒</div>
+                    <div class="decrypt-title">進階做法：六層系統架構圖 已加密</div>
+                    <p class="decrypt-desc">本區塊包含擷取層、正規化層、AI 處理層、知識層與控制台之詳細資料流圖。<br>請輸入解密密碼以解鎖檢視內容：</p>
+                    <div class="decrypt-form">
+                        <input type="password" class="decrypt-input" id="input-architecture" placeholder="輸入密碼 falo...">
+                        <button class="decrypt-btn" onclick="attemptUnlock('architecture')">解鎖內容</button>
                     </div>
+                    <div class="decrypt-error" id="error-architecture" style="display: none;">密碼錯誤，請重試！</div>
                 </div>
-            </section>
+                <div id="content-architecture" style="display: none;"></div>
+    </section>
 
             <!-- Section 4: Roadmap -->
             <section id="roadmap">
-                <h2>四、 結果導向導入與產品變現路線圖 (Roadmap)</h2>
-                <p>產品導入採取敏捷漸進路線，注重在每個階段都能立即減少閱讀時間：</p>
-
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-badge">1</div>
-                        <div class="timeline-content">
-                            <h4>Phase 1: MVP 極簡驗證</h4>
-                            <p class="timeline-meta">第 1 - 4 週 ─ 「手動大腦外包與 Prompt 測試」</p>
-                            <ul class="custom-list custom-list-check">
-                                <li>每天晚上手動匯出 Top 3 核心工作群組紀錄為 <strong>.txt</strong> 檔案。</li>
-                                <li>使用 Python 解析並丟給 Gemini / Claude API，藉由 Few-shot Prompt 生成結構化摘要。</li>
-                                <li>自動整理出「今日決策總結」、「我的待辦」、「潛在風險」並手動記在 Notion。</li>
-                                <li><strong>成功指標</strong>：驗證 AI 萃取準確度，每日 LINE 處理時間從 1.5 小時降至 30 分鐘內。</li>
-                            </ul>
-                        </div>
+                <h2>四、 結果導向導入與產品變現路線圖 (Roadmap) <span class="lock-badge" id="badge-roadmap">🔒 已加密保護</span></h2>
+                
+                <div class="decrypt-card" id="card-roadmap">
+                    <div class="decrypt-icon">🔒</div>
+                    <div class="decrypt-title">進階做法：產品變現與落地路線圖 已加密</div>
+                    <p class="decrypt-desc">本區塊包含 MVP、3個月降噪雷達、6個月雙向 Agent 與 1年 SaaS 產品化之行動清單。<br>請輸入解密密碼以解鎖檢視內容：</p>
+                    <div class="decrypt-form">
+                        <input type="password" class="decrypt-input" id="input-roadmap" placeholder="輸入密碼 falo...">
+                        <button class="decrypt-btn" onclick="attemptUnlock('roadmap')">解鎖內容</button>
                     </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-badge">2</div>
-                        <div class="timeline-content">
-                            <h4>Phase 2: 3個月方案</h4>
-                            <p class="timeline-meta">第 2 - 3 個月 ─ 「非同步降噪雷達與戰情看板」</p>
-                            <ul class="custom-list custom-list-check">
-                                <li>部署專用 Android 備用手機，安裝 Notification Listener App。</li>
-                                <li>透過 n8n / Make.com 建立自動化 Scenario，將通知 Webhook 拋送至雲端。</li>
-                                <li>對接 Notion CRM 資料庫，每 4 小時自動更新客戶互動紀錄，實現非同步批次閱讀。</li>
-                                <li>設定即時預警：當識別到「急件、發飆、延期、被 @」等高優先級字眼，透過 Slack / Telegram 即時強 Call。</li>
-                                <li><strong>成功指標</strong>：主力手機靜音，大幅降低資訊焦慮與微干擾。</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-badge">3</div>
-                        <div class="timeline-content">
-                            <h4>Phase 3: 6個月方案</h4>
-                            <p class="timeline-meta">第 4 - 6 個月 ─ 「智慧 Agent 記憶與 HITL 控制台」</p>
-                            <ul class="custom-list custom-list-check">
-                                <li>導入 AI 記憶模組 (如 Mem0)，讓系統學會記住用戶習慣與專案歷史上下文。</li>
-                                <li>建置本地 RAG 知識庫，讓 AI 能調閱過往產品規格書與報價單。</li>
-                                <li>建立 PWA Dashboard 或 Slack 互動卡片作為 <strong>HITL 控制台</strong>：當客戶提問時，AI 自動檢索知識庫並產出 LINE 回覆草稿，用戶在控制台審查修改後一鍵送出。</li>
-                                <li><strong>成功指標</strong>：將「閱讀 ➜ 查規格 ➜ 打字回覆 ➜ 記錄待辦」的長鏈條，簡化為「批閱草稿 ➜ 一鍵點擊」的單一動作。</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item">
-                        <div class="timeline-badge">4</div>
-                        <div class="timeline-content">
-                            <h4>Phase 4: 1年產品化</h4>
-                            <p class="timeline-meta">第 6 - 12 個月 ─ 「企業級 SaaS 與軟硬整合變現」</p>
-                            <ul class="custom-list custom-list-check">
-                                <li><strong>軟體訂閱 (SaaS)</strong>：提供引導式 Web UI，月訂閱計費 (B2B SaaS 模式)。</li>
-                                <li><strong>地端硬體 (Appliance)</strong>：針對資安敏感中小企業，推出地端「業務 AI 外掛盒」(微型無螢幕 Android 設備)，強調 Privacy-First。</li>
-                                <li>結合 FALO Workbench 作為另一種 Document Source，對齊 ISO 42001 與歐盟 AI 法案建立 Audit Logs。</li>
-                            </ul>
-                        </div>
-                    </div>
+                    <div class="decrypt-error" id="error-roadmap" style="display: none;">密碼錯誤，請重試！</div>
                 </div>
-            </section>
+                <div id="content-roadmap" style="display: none;"></div>
+    </section>
 
             <!-- Section 5: Actions -->
             <section id="actions">
@@ -1025,45 +990,20 @@
 
             <!-- Section 7: GAS Webhook Redirection Workaround -->
             <section id="gas-gateway">
-                <h2>七、 輕量落地利器：GAS Webhook 302 重導向防禦與突破</h2>
-                <p>
-                    在內地與中小企業實際落地的架構中，使用 <strong>Google Apps Script (GAS) Web App</strong> 作為輕量級資料落地閘道器 (Gateway) 是一個極具性價比的解決方案。然而，絕大多數開發者在此路徑都會遇到一個關鍵瓶頸 ── <strong>LINE Webhook URL 驗證失敗</strong>。
-                </p>
+                <h2>七、 輕量落地利器：GAS Webhook 302 重導向防禦與突破 <span class="lock-badge" id="badge-gas-gateway">🔒 已加密保護</span></h2>
                 
-                <h3>1. 核心技術瓶頸：HTTP 302 重導向阻礙</h3>
-                <ul>
-                    <li><strong>現象</strong>：當在 GAS 中使用 <code>ContentService.createTextOutput("OK")</code> 回傳驗證結果時，Google 的伺服器預設會發送 <strong>HTTP 302 Found</strong> 重新導向至 Google 的內容託管伺服器。</li>
-                    <li><strong>阻礙</strong>：LINE 的 Webhook 驗證引擎基於安全考量，<strong>不支援也不會跟隨 HTTP 302 重新導向</strong>，這會直接導致 LINE Developers 控制台報錯「Webhook URL verification failed」，使得整條 Webhook 鏈路無法直接通暢。</li>
-                </ul>
-
-                <h3>2. 獨家突破方案：強制 direct HTTP 200 回傳 (HtmlService 繞過)</h3>
-                <p>FALO 落地版程式碼中使用了一段特殊且優雅的解法 ── <strong>改用 <code>HtmlService</code> 替代 <code>ContentService</code></strong>：</p>
-                <pre><code class="language-javascript">function htmlPostAck_(payload) {
-  var safePayload = JSON.stringify(payload || {ok: true})
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // 核心繞過點：使用 HtmlService 回傳 HTML 標記，Google 伺服器會直接以 HTTP 200 OK 響應
-  // 避開了 ContentService 的 302 重導向，從而成功通過 LINE 的 Webhook 驗證。
-  return HtmlService
-    .createHtmlOutput(
-      '&lt;!doctype html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;/head&gt;' +
-      '&lt;body&gt;OK&lt;script type="application/json" id="falo-result"&gt;' +
-      safePayload +
-      '&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;'
-    )
-    .setTitle('FALO GAS LINE Bot Webhook OK')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}</code></pre>
-
-                <h3>3. 落地架構價值</h3>
-                <ul class="custom-list">
-                    <li><strong>零維護成本</strong>：不需要架設 VPS、ngrok 或任何付費的中介 Proxy 伺服器，100% 依賴 Google 的無伺服器 (Serverless) 基礎設施。</li>
-                    <li><strong>資料安全落地</strong>：LINE Webhook ➜ GAS <code>doPost(e)</code> ➜ 直接將結構化事件寫入 Google Sheets (作為緩衝佇列) ➜ 地端 AI Node 定期拉取 (Pull) 分析。</li>
-                    <li><strong>物理防封號</strong>：GAS 扮演了極好的「被動吸納緩衝層」，不直接從伺服器端模擬人工回覆，符合 Privacy-First 與人機協作 (HITL) 治理。</li>
-                </ul>
-            </section>
+                <div class="decrypt-card" id="card-gas-gateway">
+                    <div class="decrypt-icon">🔒</div>
+                    <div class="decrypt-title">302/200 突破技巧：GAS Webhook 核心源碼 已加密</div>
+                    <p class="decrypt-desc">本區塊包含繞過 Google Apps Script 302 重導向限制以通過 LINE Webhook 驗證之 JavaScript 實作程式碼。<br>請輸入解密密碼以解鎖檢視內容：</p>
+                    <div class="decrypt-form">
+                        <input type="password" class="decrypt-input" id="input-gas-gateway" placeholder="輸入密碼 falo...">
+                        <button class="decrypt-btn" onclick="attemptUnlock('gas-gateway')">解鎖內容</button>
+                    </div>
+                    <div class="decrypt-error" id="error-gas-gateway" style="display: none;">密碼錯誤，請重試！</div>
+                </div>
+                <div id="content-gas-gateway" style="display: none;"></div>
+    </section>
         </main>
     </div>
 
@@ -1079,6 +1019,104 @@
             </p>
         </div>
     </footer>
+
+
+    <script>
+        const encryptedData = {
+    "matrix": "5a115287c0e089f3ce84dcee8ff7e588fce54c232f2f294f81f5f389e3ea88d7cb84c2e683e4c48ce6e08bc6cf84c2f583fddc89f5d689e0f087f9d780f2f680daed8bdcdd86d9de80ffda89c1ea89d0e388cce78fe1de87c7ed8ac3ec89cdce89ddf653491152656c414c4f46414c4f46414c4f46414c4f465d080610410f0307121f5244150d0d0a04411d03121c00081205190343526546414c4f46414c4f46414c4f46414c4f46414c4f5a150d0d0a04526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a15040a0705526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a151e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d18075887e6ef8ec0ff89f0d88aceee5d431b0e5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531209528ae9ce84ceea87ecc85a4e1807586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b0e5f8bc6cf84c2f580e1cb53491504516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d18075884dcee8feffa86c4c985f5cc5d431b0e5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5312095286f0ea8bf6da86dac28eccdb53491504516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d18075888edc681f5c48ac6d58af6c989e4e883cff68bdbec50401209526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e181d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f464150401209090e025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531203030b1f5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531213526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a12181d090f0b5180e8e78aedf484eeec84c8c681d5ec86eae589e3c984ebd54649421b1e1545534912181d090f0b515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c1600024f050d0d1c155c4e0d07050b0a46030d0b0104411c13020f0a15124e5180c4d986cdf9504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315110d014602000e1512514d0400080803410e0e0206094215140f0c03121f4d5887c9da8fcaf45349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b12190c05041f1c445f85f4d088cec78ffbc65349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b12190c05041f1c445f8acad385d1e15a4e1f1f070f5253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b5891f3f0c441501c12130301015f2139364185c6f189c1e68fc7fa86e7d9504015151e000806528ce6e389c1ef84e9c783f1e487c0ee83d3ea85d1e98ffcf28aebd28af6e482eced8fe4e18af6e985f9ed87d6ff460d0501030d03085411154f83eec38bddc489c1ea86d2e18edce58aeaf78beddc86c4e483dde38aeaf78afade87fff585e1ee53491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d431b145f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531213526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a12181d090f0b51270f081d0908084f8fe1f688f9c48bf4c589edd24649200615150901031345534912181d090f0b515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c1600024f050d0d1c155c4e0d07050b0a46030d0b0104411c13020f0a15124e5180c4d986cdf9504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315110d014602000e1512514d0400080803410e0e0206094215140f0c03121f4d5888c7f75a4e1f1f070f5253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b585d1f1f070f4c0c0a001f1c5b430e0e0206094f04000808034c1f1a0502091c15435289c3d488d2e85d431c160002515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c1600024f050d0d1c155c4e0d07050b0a46030d0b010441180713020608064e5182d9c188cbe8504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205528dfae44c5315151e000806528aebd28af6e487ffd883eefa8bdeda89e5fd87fad680c0e4534912181d090f0b5185e1ee8ae5e48ae5f584e3f94620020b140e050b4686dfd481d4dd86e6fb8bf0c387c0eb89dde08bdeec84c8de86cedf4985d4e281f8d78ae3c44c232f2f298ce6e350401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e181d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b145f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315151e000806522207151e061e41202628244c89cfea8ae1c341442d03041c0a1448504015151e0008065253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b585d1f1f070f4c0c0a001f1c5b430e0e0206094f04000808034c1b0e140f05010143528bdecc85c4fe5d431c160002515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c1600024f050d0d1c155c4e0d07050b0a46030d0b010441180713020608064e5182d9c188cbe8504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315110d014602000e1512514d0400080803410e0e0206094211001e010f0f0b4d5885d4c281cce55349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b050d0101041e4d5887c9da8fcaf45349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a15085184fbcd4f5a12181d090f0b518ffaf58af6f04c2e0104021b4686d9ed80c4d989f0d88aceee5d431c12130301015f8fefe484e3c08ffaf58af6f08afbd086f5d389dde08bdbe785f3e686dac280eded4f2a04181b03134c3c0300000608064c2a5424294f83ceea86f7d18fefe45d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5349151e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d181d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c12130301015f2d010213030602418bebc788f6f381c5f54f4e200f0c03121f0604080006121845534912181d090f0b515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c1600024f050d0d1c155c4e0d07050b0a46030d0b010441180713020608064e5182d9c188cbe8504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315110d014602000e1512514d0400080803410e0e020609420200020803134e5182dce25349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b050d0101041e4d5888c7f75a4e1f1f070f5253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b585d1f1f070f4c0c0a001f1c5b430e0e0206094f04000808034c080e0806091d445f85c4fe5d431c160002515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f9cf0f9c04c8ae5e488d2fa86eed58ec2f089ecf285f2fa88f3dc81dfc888d3e58bf5e284f8c08ecfec8ae4f88ae0d28ed0e382dacf89f5ec89dfe789f5f08fc3c486fccb8acad388c7f785e1ee53491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d431b145f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531213526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a12181d090f0b5122041f04120e1c4f29223e4f40413e3f275d431c12130301015f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b160d1d08080208445f88d7cb86c1e65a4e1f1f070f5253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b585d1f1f070f4c0c0a001f1c5b430e0e0206094f04000808034c080e0806091d445f88d7cb85d1e15a4e1f1f070f5253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b585d1f1f070f4c0c0a001f1c5b430e0e0206094f04000808034c1f1a0502091c1543528bdbef504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315110d014602000e1512514d0400080803410e0e020609420200020803134e518fcaf45349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a15085196fef3ce4685d1fb81f5c48ac9c785c4f288f7d48ee4ca88f3ca85f2c48ed0e333284c89f2d88be6ee87f4fc83c5dd89f3e983d3ea86e8ce80d2f98aebe68bdbfc86eed546320d0e354189cbfc86cbf080e9da8ce6e350401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e181d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b145f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315151e0008065289cec08afcca84f5c783c5f686f0ea4c444620282d4689e9dc80fdc0534912181d090f0b515a4e180b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501b025f501c1600024f050d0d1c155c4e0d07050b0a46030d0b0104410b070f0b0a1443528bdbef504015110d01585d431b025f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c531205525315110d014602000e1512514d0400080803410e0e020609420200020803134e5182dce25349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b050d0101041e4d5887c9da8fcaf45349121c0e085f50401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a1508515a121c0e08410f0307121f5244030d0b01044c0d07050b0a4b050d0101041e4d5888c7f75a4e1f1f070f5253491508516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d180b5891f3fbd24189ece388f5ff8ff7e788ffdd8ad7ca89c5c989dde08afcd58acfda86caee80ccce8ae7fb8beddc86f8f081f5ce88f4d189cde585d4d483ebf78ce6e350401205526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e181d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f464150401203030b1f5f664f46414c4f46414c4f46414c4f46414c4f46414c5349150d0d0a04526546414c4f46414c4f46414c4f46414c4f5a4e0806105f666546414c4f46414c4f46414c4f46414c4f5a0505194602000e1512514d070d091d12410d030313184211001e010f0f0b4d586b4c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b430d03031318420f020301445f8ef5c68ed4e05a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e0e0a041e1b4b0203011204021b445f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530e55528ad6e085e1f088cec78ffbc689e9f185e9f45d4307525f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c53165f88d4dd85d1fa82d9d78aedf48ac7c787ffc382dbd68ad1c48afceb85d1f385e1ed8bd9cf8afbdf41202628244c8ac8c38ae7d086c7c046203c244687e4f983c5f686f0ea89d7d589f5f081fbe888e7d184e6d487fad680c0e488fce789c1df87f4fc8ec6d488ffdd4c232f2f294f83cff489f0d889c1ef84e9c781facf89e8c689dfe889ebdb83d1ed87fffe8fefe45d1f1b140e02085884d0d881e2e48adddb84c2d684f0c78ff7e788ffdd8ad7ca89c5c98ffbe289c8d488d2d986f8c780cdcd87c0e04389decd84c6c084d4dc8ef8f3534912181d090f0b5189dde08bdef58bdcdd86d9de80e6e589e8c089e0f082ece38ec3c78aedf48bf4c589edd2464a4c8bdcdb89d8c389cae980c1d48ce6ec8bf5e288f4dd83d1ed87fffe8af1d087cbe485e1ee534911526546414c4f46414c4f46414c4f46414c4f46414c4f5a4e0806105f664f46414c4f46414c4f46414c4f46414c534905051958",
+    "architecture": "5a115288e4db88d5e086ced582def186cdf985f5d786cbee80e1cb87eee689d6d584e3df82d9e18ae9ce8bf0c387ecc889dde088d5da8bdad787e3ff81e4e58ae1db88d4c385d4e483e4c18ad7c584f6f386fce980ffda89c1ea83d3fc5d431f586b664f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e0b0f000b1d070c410c090f180e0f0f091d445f664f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e0b0f000b1d070c41090a0e1b4d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b43080607061e0e0b4c020002044e515a12181d090f0b512a28222a4684e2f083c6e78ad6ec84c6d741434f83d1e489c7e98bd1c286d9eb464e4c8af6e988d2fa84c8ca82ddd887ceeb8aeec95d431c12130301015f504002081a516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d080610410f0307121f524405050e01130d024b001e1d09164e5184f7d05349050519586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b43080607061e0e0b4c020002044c070f0604030f06041b445f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5315151e000806528df7c14c89f5d689e0f084ddcb46492f0e1615191d0341200e1f041e465a4e1f1b140e0208585d0e1d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501c1600024f15151503035c4e09090f18421508160a5c415c415e541e0a0b5a4c0c090d031d5c411a0e144941421204141b4b12090c090f080e14184554445f2d010213030602418bdcdd86d9de8fe1f688f9c48bf4c589edd246201c1f464989e2d587f5ed4f41474f83cff689fafe8ae6ed84e7fa4615141b4684eef682dad18aeace89e8dc414489efd88ac3c748504015110d01586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641504002081a516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d080610410f0307121f524405050e01130d024b001e1d09164e5184f7d05349050519586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b43080607061e0e0b4c020002044e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d1f1b140e02085883fdce4685d6e482dada89cbc284c9e984e0f983d0c84f4e241a0a08154c230718091d4f5d431c12130301015f500d145f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5315110d01461218160a04514d000e021b4b120515035b4c5f4859591d030c574f050e0000145b4c19071344424b150917124c1f0a050e020b071315465d435287ccff8aebe987e7d380efc94f4e320902070f180605412f07130f07060806454f83f1e48bdbd48bf6da89c4ef464a4c87d4dd89f3f04e8bebc787e8e081dfc58af3ee89efff88ede180ded25349121c0e085f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5349050519586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b43080607061e0e0b4c0d1d140e1b4d5883fad35a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e0b0f000b1d070c41010905094f0e080b070a080b071243526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a12181d090f0b5184f0ce4f27284c210915094f8ef8f988f6e789dec241442e2f4129010108020a4f5d431c12130301015f500d145f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5315110d01461218160a04514d000e021b4b120515035b4c5f4859591d030c574f050e0000145b4c19071344424b150917124c1f0a050e020b071315465d4352232a2c4c88d3f18ac8ed84e0f98eddd48ae1db4c472c3223214f41474f82dad78aedf84389d7db8bc2f088d7f14984f9e980c8f3408fc3c486fccb89cbfc86dac280eefc8ae9f7504015110d01586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641504002081a516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d080610410f0307121f524405050e01130d024b001e1d09164e5184f7d05349050519586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b43080607061e0e0b4c020002044e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d1f1b140e02085883fdcc4686f3ca8eccf489d4e88ad1d784ddcb464927010916000a0206094f2a00150a1448504015151e00080652530413526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a121c0e08411f1b1f0d095244070301124c1f061c04564f564f545a14040154460203030913564f10001e474b4c180a1e15411c0302030102001e164f5a4e5183cec78ae3c44c3d27264c8af6f085e8e989dfe880f7f58adcca4c444684dce280efc94f36041e1c090f0d0346223e2246492a000a0a432c0a0015465a4e1f1f070f526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e0b0f000b1d070c410e14130318445f8ef9da5d430b0f17526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a0505194602000e1512514d02080d0814000142080e080a460905080e0d05080e154e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d1f1b140e02085883fdcb4687e2c883e9da89eae68ae0c884ddcb46492f000b0c0d0102041e4f250e021c090d09465a4e1f1b140e0208585d0e1d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501c1600024f15151503035c4e09090f18421508160a5c415c415e541e0a0b5a4c0c090d031d5c411a0e144941421204141b4b12090c090f080e14184554445f8ac0e987fbca81d1cd8ac6d08ae1ce88ecee464a4c8bdcdb8ac6f984e1fb82dcf08ac9c88ae6df88faef80e9da4f4e85d4ef8fecd986ddff8afcec84f3d88ec0e08bddda89e4ff4e2d1f16130319034189f4f889cae98eece588cede455349121c0e085f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5349050519586b4c4f46414c4f46414c4f46414c4f46414c4f4641504002081a516c414c4f46414c4f46414c4f46414c4f465d430b0f1752",
+    "roadmap": "5a115288f2c389fce784dce183e4c989e8c089e0f087f9e080ecdb89dad985efd489dbc081d6f680daed8adcce88ebe283fdc489c9ee89efed88f6e180cfd986e5dc84ecdb86c7e483ecdf89defa89dff788fade8ecfec89ffe385f9f58ed0f55a4e1c516c6b4c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b4318060b04000608044e516c414c4f46414c4f46414c4f46414c4f46414c4f465d080610410f0307121f5244150502030d0501034c051b030c4e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d080610410f0307121f5244150502030d0501034c0e0e0206094d5850504002081a516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d080610410f0307121f5244150502030d0501034c0f00081509011243526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a09585136090d1c03415d55462c3a3f4687c9da81d1cd86cff684c2ef5d4307525f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5316410f0307121f5244150502030d0501034c010a12004e5181cdc04f5741414f524185efd7418efbe6418fefea87e5e483eaf98ac2c684eac084c8f983ede987eee64c3f140e011f12418ad7ca89c5c985e1e1534911526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a14004f050d0d1c155c4e0c131218000b4c000615154c0c131218000b4c00061515410c0e040f04445f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a085289c9ee89cbcf87f5f582d9e689efea89e4f384e0c083e6d64f320e1c4f55418acfde84d3ec83d6c98bdbfd8bd1c286d9eb81d5ec86eae58beddc41501c12130301015f421b1e15504015151e000806524f80cbf889c7e98fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a08528bdbde8bfbce413c16120903014689cbcc80fffc8bdec788d7f986d9c9462609020f0f054f49412f030714080a46203c2689dde087f1e88bfbd7412a0a114c1f0709154c3f140e011f12418bfbf987e4ff81d4fc89c1ea89e3f087fdf78ec7ed8ce6e350400a08526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a0d05518ee6c68aedf48afad286fce983e6d68ce6ed88d4ec87fbca80d0d688cbf78bd7db86d9ff85e1e18ce6e08fefea87e4fe81fbe88ad8e484d1c082ece285e1ed8ce6ed8ad2fd84f0c78fc3c486fccb8fefeb85d4c980e8e78aedf484c7fe84f0c7462f031b0f0e028ce6e350400a08526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a0d05515a12181d090f0b5180e9fc8aecfe8ae3e187c4f65a4e1f1b140e0208588ed0f58fc8fb87cbe84c2e2f4184ffe584e3f980dbfa88c4db89d5c08ed0e380cee389f1c44c232f2f294f8ef8f988f6e78af6e488fafc83dff24f574f594f83d1e389ffe385f6eb89ebdc46525c4f83e9ea86f6f989eac182eced5a4e0006586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46415040130d526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c5349050519586b664f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e1b0f0c09030f0f09420f150902445f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e1b0f0c09030f0f0942040008080343525d5a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e1b0f0c09030f0f0942050e021b030f184d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46415007525f3c070712094f545b4c5c83e1e789fae98af9df87cde75a4e045b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501f4602000e1512514d1208010a0a08020a4b0c091b07435288cacd4c5d464c4c5c4684ece480fde44f84f5ec4f85e1e086fbff89ffea87c1ca8ff8e18affcb85f4d188edfb8ee9eb89eed18aece386f0e480fcd38ce6ec5040165f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c53130d4c0c0a001f1c5b430f1a151503024b0d051c12410f1a151503024b0d051c124c0f070302074d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f464150030f5f85ecce86d1dd83d1e488f2c94c2e08051e000f054c8ae4f88bfbce87e5e480c8f380daed89c1ef89cff2462f031b0f07050c07150500084120061515090103134c2e16118fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a085286e6ee85eee84102570841434f2b00070a480203024684d7d581cae787e1cb89e4f384e0f946320f0a08001e06098ed0e383d1eb86e6fb8bf0c3413b0a040903000d418ae4ed88ecee8ee6df86fdd38bc4c982eced5a4e0006586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f464150030f5f89dfeb87e2ca462f031b0f0e024f2533214f8ed2eb89f0f889d5cd8ed0e380cee34f524189dfe987f5ed8ee6c68aedf48af4d287fadf83cfce89eed788d5f484e7fa81d5ec86eae583d3ea84c3c981eed286fbff89ffea87c1ca80e8d589cac085f9d789c2ef85e1ee53490d05516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d00065889c4c283cff68aebd28af6e488ccff8eccca80dafb8bfad089c1f783e9c98aeed18fefea87ecca82dada8ce6e08bf6da88cfe985e1ed8addd78af3f982ecee8ec3c74f2682ece281cce586cdf989ebcc84e9e781d5f68acbf68bf3da8ed0e38fe1e386e7ef4c3c0a000f04464e4c3b030d09081400014f83ecdf89ffe389d3d1412f0e0a0d8fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a08525315151e0008065289eef189e5f987e0e880c9f5534912181d090f0b5189ddf68bdeda89e5fd87e5e480c8f386fbfd85f0d58ed0e383c5cb8adfe485f6eb85d1e18ed2eb87ceeb8bebc087e9c18ee9eb8ad8cf89d6d487ffd185e1ee53490d05516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d431a0a5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5349050519586b4c4f46414c4f46414c4f46414c4f46414c4f4641504002081a516c6b4c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b4318060b040006080441061204014d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b4318060b0400060804410d07050b0a445f5f5349050519586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641500b0f174c0c0a001f1c5b4318060b0400060804410c090f180a08154e516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d045b5831040e15044c5c5c415a8ae6ea8af3ee87fad680c0e453490958516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d1c4f050d0d1c155c4e1b0f0c09030f0f09420b04180e445f8bc3ca41584f4b415a4f83e1e789fae94c8df2e14c8ce6ed8af6dc87e9c846200b0a08154c87cef98ae9d089e4e84629253b2a418ae1c184e4d983eedc8ce6ec5040165f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c53130d4c0c0a001f1c5b430f1a151503024b0d051c12410f1a151503024b0d051c124c0f070302074d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f464150030f5f89dfe884e9ca4620254f8ec9f489e0d78ac7c786d9eb464989c9e441210a0b514580daed84c1f586dfd481d4dd8acbd98af3e589c4f782dce388f2c98ae7d086d3fd80e4cf87eee689dfee87cde780ccdb8ae9d388d7ec85d4e480f7eb8ce6e350400a08526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a0d055183dad688dbcf8af3ca84f0df46332d284686f3ca8eccf48adcca83d3ea89c2fc4620254f8ee2d187ccde85f9d788ede183dfec88f2c389fce789cae080c1d089fdd984e7e184ccde83e2d58af0cf8fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a08528adddb8bc4ed413c382741280e15090e000713084f80e9fa4f350d0d0c0d4188d5f484e7fa83eccd88efe688d2fa86eed5465d1f1b140e02085829253b2a418ae1c184e4d983eedc534912181d090f0b5189ddf688f3d789c1c487e4d980eefc8af3ee8af6e48ed0e327284c87e1cb89e4f387c6cd81d5ce88f9c484c2fe84d6c482d9ca88f2c389e8dc41202628244c8afdff84c9e089e1e681c9d380daed8bfbce87e4d983fdc489e8c689e7d084e3df83cec589f9c488d0c887f8d683dfe08bdee185e2d388ecee83e6d68ce6e350400a08526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a0d05515a12181d090f0b5180e9fc8aecfe8ae3e187c4f65a4e1f1b140e0208588ed0f583d1eb8ce6ed85f9d789c2ef4683f2f34687f3ca8ec7e389c6dd4c8df8fd4c89eff289c2f184f7f18ec7ea4f84fff04f8ec9f486eae589d1e389d2c985e1e188fce585fad188e3e780c3f180daed8bdfc784e0f981e3d68ce6ed8ae6df88fade8eece588cede4c8df8fd4c8bdee185e2d388d7f180f2e68ce6ec8bf5e284fac182d9ec8aedf488d2fa82eced5a4e0006586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46415040130d526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c5349050519586b664f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e1b0f0c09030f0f09420f150902445f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e1b0f0c09030f0f0942040008080343525b5a4e0806105f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5302081a4f050d0d1c155c4e1b0f0c09030f0f0942050e021b030f184d586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46415007525f3c070712094f525b4c5e83d8d888f2c389fce784e0f95a4e045b586b4c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f4641501f4602000e1512514d1208010a0a08020a4b0c091b07435288cacd4c59464c4c5e544189efed87f0e74683f8ef4682ece382dded89c3cc8bdbfc413f0e07324c87eee684d4f986cdc380f4d88af6e984c1ec86e3d185e1e1534911526546414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f5a14004f050d0d1c155c4e0c131218000b4c000615154c0c131218000b4c00061515410c0e040f04445f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a08525315151e0008065287ddfe85c4f289c4ed8ff7dd4f4e320d0e3548504015151e0008065280dafb8ae0f685d2f483ddf98ad6ef89d3e9413b0a0441392689dde089fae984c7e488fade8ec9e487d4da4c4724532e4f35000d3c4687c4ce83dde34685e1ee53490d05516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d0006585d1f1b140e02085884f0df81cac388c7cd85c4f241442e16110006070f0f0a4f5d431c12130301015f83d3fc88ebf283d1e187d5e689c1ef87f9e080e5f38bdecc89dfe985d0ee80c4c180daed8ae1ce84ebd583fddc88cdce8fefea87c9c283eaf54f27284c8ac2f78ae1fd86f7fd85e1e14783dfc28af8ea8bebc789f2cd83d8f94f270f081d0908084f8ec9c18ae4f84580daed89d3d189c6d046311e0610000f164b27051d15158fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c530a085288d3f189ffee412a2e2a2e4c380913070d030f0f074685d1f381e3d68ae9c788d7e686c4c14625030c130c090112413f0013130f0a89dde08ad6ec85d2ec41253c2941585d56515d4f8ee9eb89cbf18bf4f9412d264687dffa80c0e48adddb8bc4ed412d1a0208184f2a0e0b1c85e1ee53490d05516c414c4f46414c4f46414c4f46414c4f46414c4f46414c4f46414c4f465d431a0a5f664f46414c4f46414c4f46414c4f46414c4f46414c4f46414c5349050519586b4c4f46414c4f46414c4f46414c4f46414c4f4641504002081a516c414c4f46414c4f46414c4f46414c4f465d430b0f1752",
+    "gas-gateway": "5a11526546414c4f46414c4f46414c4f46414c4f46414c4f83fdc48ae3c689f3d689e4e882d9c18ad6ee88d3e787c9c283ceca86fcfa84ffdb84f0df81fbe889f8d78ac8ed85d4c289dde08bdbde8bfbce41501c12130301015f2b000906000a46201c1f15413f0c14081c1b46492b2e35484c3803034c2e1611504015151e000806524f82dcf088e4db84d3f388ebe081d5f687d5e68af9ff89fcd283fddc86f0f985eef584f5c746492b0e12041b0e1f484c89fece88d7e684ece480c4d98ae3d68aefc184efd680cef888fce584c8c587ddd580f7d589c7e98fefe486e8d98ee1e080daed8bdaf384c8c883c5f689f3d985f9ed86f5d38ee1e98afac98ac2c289dbc083dffd86e5dc8af3e588ede883e9dc8bdee189efed88fbf38fecd988f5d785cfde418efbe683f8ef465d1f1b140e0208582d252123413b0a040903000d41393d2a4185c6f189c1e683c5dd89f3f6504015151e000806528ce6e3664f46414c4f46414c4f46414c4f46414c534911526546414c4f46414c4f46414c4f46414c4f6c414c4f46414c4f46414c4f46414c4f465d045c5850424f80c1d48ad9e28ae5e689cdfc81f2da86c6d983d3fc29383b36415f5f544185e8eb84dce183f1fd86feda8bcbff5d4307555f664f46414c4f46414c4f46414c4f46414c53130d526546414c4f46414c4f46414c4f46414c4f46414c4f5a0d05515a12181d090f0b5181eed287d7c0504015151e0008065280dafb8bfad084f0c746262d3c4685d4c282dcd388f2c94c53050e080a582203011204021b35041e190f0209410513090e1204380a1e15231a1211191b4e43232444485040050e080a584189f4f884eedc8fc8fb87cbe88bdaf687f2f380f8ee80daed2b000906000a4686f6eb82ddd689faec89f6ce88ccff8ec9c189fae28bf6da88ecee465d1f1b140e02085829383b36415f5f54412a00130f08534912181d090f0b514688ebe280f7dc8ad6ef89fff789ebdc46260300010d094f81fbe88ae3c689c1df89c4f881cfcd8bdadb8af3eb84f5c785e1ee53490d05516c414c4f46414c4f46414c4f46414c4f46414c4f465d0006585d1f1b140e02085888f4d481c5f5534912181d090f0b5189ddf6232f2f294f81fbe84f31040e07090e074f8fc8fb87cbe889d3f387ffe183fed689f0dd89c1ef84e9c78ee1ef86e1ee83d3ea5d1f1b140e02085885d4e280f5c389e9d588d6f985d4e280fdef87d1fe85f5ce41243b32314c5c56534c86e1ec8af9d684dce183f1fd534912181d090f0b5189dde086e6f88af3e586f7db80efc98ad6ef84e8d241202628244c2b031709030911091d15418ae1c184e4d983eedc8ac6d085e3c982ece331040e07090e074f3333204f10041e0600080f0e1208030146070d060a04088ce6ec83d3ea85d1d083dffb89f3d58acdfb413b0a040903000d4185e0ee89dbc081e5cd89d5f48bf4d287e2ca8fe1f689fcc38fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c53491400516c6b4c4f46414c4f46414c4f46414c4f46415007555f5e414686e1c783cfda88cce08bcfd287fad680c0e480dafb89d3d184e4d94605051d0302184f2e35383f46535c5f4684f7f183e3df4f4e2918020a32091d10080f0a4686d5f18fe0e2465a4e045c586b4c4f46414c4f46414c4f46414c4f4641501f58272d23294184ffdb84f0df81e8e488ceea89d3e986ced382d9c18bdbde8bfbce85d6e982d9ec89c8d48be6df87c2e582d9f88ae2cb85f4e386f6eb8ec6cf89d5f44c8df2e18efbe641501c12130301015f8afbdf86f8c7465d0f0002045227120c003c03131a0605045040050e080a58418af4d985d7cc465d0f000204522c090f180a08153f0a1417050c035d430c090509515a4e1f1b140e0208588ed0f55a4e1c516c414c4f46414c4f46414c4f46414c4f465d1c1d035f500c0905094f050d0d1c155c4e03070f0b1a070609420c001a0e15021e0616154e510014020c12080301460918020a31031c12200f0439491c0e1f0d030e02484c146c414c1907134c1c0707093f0718000007054c52462b3f20284f1f1b140802080f071547160015030900084f1a1d4c14090a564f1213190a1b48664f46414c4114041c0307020947494743084a414b49070c1c544148664f46414c4114041c0307020947495d43084a414b490a1557484f6b4c4f4641421d0311000e05044440584e0b4346464a08125a4b465d6b664f464e434f80c1d48ad9e28bd6f888ede18fdaf280dafb88d2d986f8c7462918020a32091d10080f0a4684f7f183e3df4f2e3521234687c4f68ec9f480daed2b000906000a4685d0d580fde18affc98af3e586f7db80efc98bddc44c2732353c4f54515c4f292a4c86f9de8ae8ef6b4c4f494e4c86e7de85f9ed85d6e9462203011204021b35041e190f02094f81fbe84f55515e4f8fe6e18ad6ef89fff78ed0e383dff287e6ed8ae7f684e6f08fe1f686e7ef4c232f2f294f81fbe84f31040e07090e074f8fc8fb87cbe88fefe46b4c4f1404181a140f4c27120c003c03131a060504664f46414c410513090e1204241b0b0d231a1211191b4e6b4c4f46414c4f4147001b5d4008000515151f0341041b0b0d4a08125a4a03125a041b0b0d4a08125a4a03125a040a07054a08125a4a03125a010a12004c0c0e001e1c0315514d13150a425e434a08125a4a03125a43070300084901155748464a664f46414c4f46464a03125a0e0002184a08125a2324400d185415021e0616154c1b1f11095244001c1f0a080f0e12080301490b1f0008434c06025c4e09070d034214041f1a0a154e4901155748464a664f46414c4f46120d0903310d160a0e0d0b464a664f46414c4f46464a03125a431c0513051f12470b1b5d47001b5d4e0e0002184a08125a4a03125a4307120c0049011557486c414c4f4648664f46414c411504183b0f15000a4e462a2e2a2e4c2827324c232f2f294f240e184f31040e07090e074f292a4b466c414c4f464f1f0a12392a1d070c0920161505000812210002044427120c003c03131a060504423720130d02032e1c1b0f0e021c2b0e080a4820202329362d232a4857651b5d430c090509515a4e1c1d035f666546414c4f46414c4f46414c4f46414c4f5a095f51554f4c87f6dc89f3d687f2d980c6e78ae5d889efda5d4307555f664f46414c4f46414c4f46414c4f46414c53130d4c0c0a001f1c5b430f1a151503024b0d051c1243526546414c4f46414c4f46414c4f46414c4f46414c4f5a0d05515a12181d090f0b518ffada88d0cc84c2d187e4ff80fdc0534912181d090f0b5189ddf68bdeec85f3e689caee80ffda87cecc4c3936328fefe70f0b1d090a4c89eef788d4dd85d1fa82daf487d4da8bf5e285d4c282dae74f361303171f4188d3dc87f0e283f8c480daed5d5f56444c8bd8fc84dcd2412b000906000a4686f6eb81e5cd8bdadb8af3eb84f5c746493f0a1417091d0a041f1c4f4189f0dc86c8e18ec9c189f0dc8fefe45d43030f5f664f46414c4f46414c4f46414c4f46414c4f46414c530a08525315151e0008065287d5e68af9ff84c2e683e4c487f6dc89f3d65d431c12130301015f83d3fc2d252123413b0a040903000d418ef1fa412b2e3541500c09050951020e3c001515440a4f5d430c090509514683f2f34686f7db80efc98ad6e68bdaf687cbe483edfa8bdcea88d4d084c3c483e4c94f210e03080a044c3c0e04091b1541448bdbfd8beddc86dbc68ec0f18bdbe689e7f1484c8df8fd4c8afad18bc4c9412d26462f030b034189c1fc87f0f080eae58ae9f74c47361400034f4189e7e087f2ff85e1ee53490d05516c414c4f46414c4f46414c4f46414c4f46414c4f465d0006585d1f1b140e02085886e5c681f1ea86fed389dfe789f5f05a4e1f1b140e0208588ed0f521203f4f80e8c289daf588d5e087c9da83c4d188fce58fefea89cec483eaf98af6d98bdbeb86dbc68ec0f18ad7c58fefeb8ed0e382d9e188fdd58ae1c384d2f182ddd689faec89f6ce86c7c080c9cd89f5cd88d5dc84dbca83faf287c0e783d3ea86c0c983f1e44f361305190702154220081e1c124184e7e185d6d580c8f38aebf588d2fa4144272f3520464687ded481f1ea8ce6e350400a08526546414c4f46414c4f46414c4f46414c4f5a4e190358"
+};
+
+        function decrypt(hexStr, password) {
+            try {
+                const key = new TextEncoder().encode(password);
+                const data = new Uint8Array(hexStr.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                const decrypted = new Uint8Array(data.length);
+                for (let i = 0; i < data.length; i++) {
+                    decrypted[i] = data[i] ^ key[i % key.length];
+                }
+                const decoded = new TextDecoder("utf-8").decode(decrypted);
+                if (decoded.includes('<') || decoded.includes('p>')) {
+                    return decoded;
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function attemptUnlock(triggerId) {
+            const inputVal = document.getElementById('input-' + triggerId).value;
+            unlockAll(inputVal);
+        }
+
+        function unlockAll(password) {
+            // Try to decrypt all blocks
+            const decrypted = {};
+            let success = true;
+            for (const id in encryptedData) {
+                const decoded = decrypt(encryptedData[id], password);
+                if (decoded) {
+                    decrypted[id] = decoded;
+                } else {
+                    success = false;
+                    break;
+                }
+            }
+
+            if (success) {
+                // Successfully decrypted all sections
+                for (const id in decrypted) {
+                    const card = document.getElementById('card-' + id);
+                    const contentDiv = document.getElementById('content-' + id);
+                    const badge = document.getElementById('badge-' + id);
+                    
+                    if (card) {
+                        card.style.display = 'none';
+                    }
+                    if (contentDiv) {
+                        contentDiv.innerHTML = decrypted[id];
+                        contentDiv.style.display = 'block';
+                    }
+                    if (badge) {
+                        badge.innerHTML = '🔓 已解密';
+                        badge.className = 'lock-badge unlock-badge';
+                    }
+                }
+                sessionStorage.setItem('falo_unlocked_pw', password);
+            } else {
+                // Show error message on all cards
+                for (const id in encryptedData) {
+                    const errorDiv = document.getElementById('error-' + id);
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        // Auto-unlock if password is saved in sessionStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedPw = sessionStorage.getItem('falo_unlocked_pw');
+            if (savedPw) {
+                unlockAll(savedPw);
+            }
+            
+            // Add Enter key listener to all input fields
+            for (const id in encryptedData) {
+                const input = document.getElementById('input-' + id);
+                if (input) {
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            attemptUnlock(id);
+                        }
+                    });
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>
